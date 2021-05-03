@@ -2,6 +2,10 @@
 #    path: /
 #    controller: App\Controller\DefaultController::index
 
-#feed:
-#    path: /feed
-#    controller: App\Controller\QuackController::feed
+feed:
+    path: /feed
+    controller: App\Controller\QuackController::getFeed
+
+create:
+    path: /create
+    controller: App\Controller\QuackController:createOne

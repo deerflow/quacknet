@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Quack;
+use App\Form\QuackType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -20,29 +21,36 @@ class QuackController extends AbstractController
         ]);
     }
 
-    public function feed(): Response
+    public function getFeed(): Response
     {
         $quacks = $this->getDoctrine()->getRepository(Quack::class)->findAll();
-        return $this->render('quack/feed.html.twig',[ 'quacks' => $quacks]);
+        $quack = new Quack();
+        $newQuackForm = $this->createForm(QuackType::class, $quack, [
+            'action' => '/create',
+            'method' => 'POST'
+        ]);
+        return $this->render('quack/feed.html.twig',[
+            'quacks' => $quacks,
+            'form' => $newQuackForm->createView()
+        ]);
     }
 
     public function createOne(Request $request): Response
     {
-        $content = $request->query->get('content');
-        $photo = $request->query->get('photo');
-        $tags = $request->query->get('tags');
-
         $quack = new Quack();
-        $quack->setContent($content);
-        $quack->setPhoto($photo);
-        $quack->setTags(explode(',', $tags));
 
-        $entityManager = $this->getDoctrine()->getManager();
+        $form = $this->createForm(QuackType::class, $quack);
 
-        $entityManager->persist($quack);
-        $entityManager->flush();
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $quack = $form->getData();
+            $entityManager = $this->getDoctrine()->getManager();
+            $entityManager->persist($quack);
+            $entityManager->flush();
+            return new Response('Saved quack with id : ' . $quack->getId());
+        }
 
-        return new Response('Saved quack with id : ' . $quack->getId());
+        return new Response('ca marche pa.');
     }
 
     public function updateOne(Request $request): Response

@@ -3,36 +3,34 @@
 {% block title %}Quack Feed{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
 
-<div class="example-wrapper">
-    <h1> Quack Feed</h1>
+    <div>
+        <h1>Quacknet</h1>
 
-    <div class="container">
-    {% for quack in quacks %}
-        <div class="quack">
-            <p>{{ quack.content }}</p>
+        {{ form(form) }}
 
-            {% if quack.tags %}
-            <p>
-                {% for tag in tags %}
-                {{ "#" . tag . " " }}
-                {% endif %}
-            </p>
-            {% endif %}
+        <div class="container">
+            {% for quack in quacks %}
+                <div class="quack">
+                    <p>{{ quack.content }}</p>
 
-            {% if quack.photo %}
-                <img src="{{ quack.photo }}">
-            {% endif %}
+                    {% if quack.tags %}
+                        <p>
+                            {% for tag in quack.tags %}
+                                {{ '#' + tag + ' ' }}
+                            {% endfor %}
+                        </p>
+                    {% endif %}
 
-            <p>{{ quack.author }}</p>
-            <p>{{ quack.createdAt }}</p>
+                    {% if quack.photo %}
+                        <img src="{{ quack.photo }}">
+                    {% endif %}
+
+                    <p>{{ quack.author }}</p>
+                    <p>{{ quack.createdAt|format_datetime() }}</p>
+                </div>
+            {% endfor %}
         </div>
-    {% endfor %}
-    </div>
 
-</div>
+    </div>
 {% endblock %}

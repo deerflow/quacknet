@@ -7,7 +7,10 @@
     <div>
         <h1>Quacknet</h1>
 
+
+        {% if form is defined %}
         {{ form(form) }}
+        {% endif %}
 
         <div class="container">
             {% for quack in quacks %}

@@ -23,15 +23,25 @@ class QuackController extends AbstractController
 
     public function getFeed(): Response
     {
+        $securityContext = $this->container->get('security.authorization_checker');
+
         $quacks = $this->getDoctrine()->getRepository(Quack::class)->findAll();
         $quack = new Quack();
-        $newQuackForm = $this->createForm(QuackType::class, $quack, [
-            'action' => '/create',
-            'method' => 'POST'
-        ]);
-        return $this->render('quack/feed.html.twig',[
-            'quacks' => $quacks,
-            'form' => $newQuackForm->createView()
+
+        if ($securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+            $newQuackForm = $this->createForm(QuackType::class, $quack, [
+                'action' => '/create',
+                'method' => 'POST'
+            ]);
+
+            return $this->render('quack/feed.html.twig', [
+                'quacks' => $quacks,
+                'form' => $newQuackForm->createView()
+            ]);
+        }
+
+        return $this->render('quack/feed.html.twig', [
+            'quacks' => $quacks
         ]);
     }
 

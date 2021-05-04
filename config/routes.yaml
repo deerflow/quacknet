@@ -1,11 +1,15 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
-
 feed:
-    path: /feed
+    path: /
     controller: App\Controller\QuackController::getFeed
 
 create:
     path: /create
-    controller: App\Controller\QuackController:createOne
+    controller: App\Controller\QuackController::createOne
+
+login:
+    path: /login
+    controller: App\Controller\DuckController::login
+
+register:
+    path: /register
+    controller: App\Controller\RegistrationController::register

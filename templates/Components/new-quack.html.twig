@@ -1,0 +1,21 @@
+{% if form is defined %}
+    {{ form_start(form) }}
+    <h2>Write something fresh :</h2>
+        <div class="form-control">
+            <div>{{ form_errors(form.content) }}</div>
+            <div class="form-label">{{ form_label(form.content) }}</div>
+            <div>{{ form_widget(form.content) }}</div>
+        </div>
+        <div class="form-control">
+            <div>{{ form_errors(form.hashtags) }}</div>
+            <div class="form-label">{{ form_label(form.hashtags) }}</div>
+            <div>{{ form_widget(form.hashtags) }}</div>
+        </div>
+        <div class="form-control">
+            <div>{{ form_errors(form.photo) }} </div>
+            <div class="form-label">{{ form_label(form.photo) }}</div>
+            <div>{{ form_widget(form.photo )}}</div>
+        </div>
+        <div style="margin-top: 1.25rem">{{ form_widget(form.Post) }}</div>
+    {{ form_end(form) }}
+{% endif %}

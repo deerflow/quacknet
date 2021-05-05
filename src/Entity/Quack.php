@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\QuackRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -23,7 +25,8 @@ class Quack
     private $content;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\ManyToOne(targetEntity=Duck::class, inversedBy="quacks")
+     * @ORM\JoinColumn(nullable=false)
      */
     private $author;
 
@@ -38,9 +41,20 @@ class Quack
     private $created_at;
 
     /**
-     * @ORM\Column(type="array", nullable=true)
+     * @ORM\OneToMany(targetEntity=Tag::class, mappedBy="quack_id", orphanRemoval=true)
      */
-    private $tags = [];
+    private $hashtags;
+
+    /**
+     * @ORM\OneToMany(targetEntity=Comment::class, mappedBy="quack", orphanRemoval=true)
+     */
+    private $comments;
+
+    public function __construct()
+    {
+        $this->hashtags = new ArrayCollection();
+        $this->comments = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -59,12 +73,12 @@ class Quack
         return $this;
     }
 
-    public function getAuthor(): ?string
+    public function getAuthor(): ?Duck
     {
         return $this->author;
     }
 
-    public function setAuthor(string $author): self
+    public function setAuthor(Duck $author): self
     {
         $this->author = $author;
 
@@ -95,14 +109,62 @@ class Quack
         return $this;
     }
 
-    public function getTags(): ?array
+    /**
+     * @return Collection|Tag[]
+     */
+    public function getHashtags(): Collection
     {
-        return $this->tags;
+        return $this->hashtags;
     }
 
-    public function setTags(?array $tags): self
+    public function addHashtag(Tag $hashtag): self
     {
-        $this->tags = $tags;
+        if (!$this->hashtags->contains($hashtag)) {
+            $this->hashtags[] = $hashtag;
+            $hashtag->setQuackId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHashtag(Tag $hashtag): self
+    {
+        if ($this->hashtags->removeElement($hashtag)) {
+            // set the owning side to null (unless already changed)
+            if ($hashtag->getQuackId() === $this) {
+                $hashtag->setQuackId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Comment[]
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments[] = $comment;
+            $comment->setQuack($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getQuack() === $this) {
+                $comment->setQuack(null);
+            }
+        }
 
         return $this;
     }

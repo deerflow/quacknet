@@ -3,11 +3,16 @@
 namespace App\Controller;
 
 use App\Entity\Quack;
+use App\Entity\Duck;
+use App\Entity\Tag;
+use App\Entity\Comment;
 use App\Form\QuackType;
+use App\Form\CommentType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class QuackController extends AbstractController
 {
@@ -21,22 +26,34 @@ class QuackController extends AbstractController
         ]);
     }
 
-    public function getFeed(): Response
+    public function getFeed(Request $request): Response
     {
+        $doctrine = $this->getDoctrine();
         $securityContext = $this->container->get('security.authorization_checker');
+        $search = $request->query->get('search');
 
-        $quacks = $this->getDoctrine()->getRepository(Quack::class)->findAll();
-        $quack = new Quack();
+        if (!$search) {
+            $quacks = array_reverse($doctrine->getRepository(Quack::class)->findAll());
+        } else {
+            $quacks = array_reverse($doctrine->getRepository(Quack::class)->findBySearchTerm($search));
+        }
 
         if ($securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
-            $newQuackForm = $this->createForm(QuackType::class, $quack, [
+            $newQuackForm = $this->createForm(QuackType::class, new Quack(), [
                 'action' => '/create',
                 'method' => 'POST'
             ]);
 
+            foreach ($quacks as $oneQuack) {
+                $oneQuack->commentForm = $this->createForm(CommentType::class, new Comment(), [
+                    'action' => '/quack/' . $oneQuack->getId() . '/comment/add',
+                    'method' => 'POST'
+                ])->createView();
+            }
+
             return $this->render('quack/feed.html.twig', [
                 'quacks' => $quacks,
-                'form' => $newQuackForm->createView()
+                'form' => $newQuackForm->createView(),
             ]);
         }
 
@@ -45,22 +62,30 @@ class QuackController extends AbstractController
         ]);
     }
 
-    public function createOne(Request $request): Response
+    public function createOne(UserInterface $user, Request $request): Response
     {
         $quack = new Quack();
 
-        $form = $this->createForm(QuackType::class, $quack);
+        $data = $request->request->get('quack');
+        $quack->setContent($data['content']);
+        $quack->setPhoto($data['photo']);
+        $quack->setCreatedAt(new \DateTime());
+        $quack->setAuthor($user);
 
-        $form->handleRequest($request);
-        if ($form->isSubmitted() && $form->isValid()) {
-            $quack = $form->getData();
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($quack);
-            $entityManager->flush();
-            return new Response('Saved quack with id : ' . $quack->getId());
+        $entityManager = $this->getDoctrine()->getManager();
+
+        $tags = $this->formatHashtags($data['hashtags']);
+        foreach ($tags as $tagText) {
+            $tag = new Tag();
+            $tag->setText($tagText);
+
+            $quack->addHashtag($tag);
+            $entityManager->persist($tag);
         }
 
-        return new Response('ca marche pa.');
+        $entityManager->persist($quack);
+        $entityManager->flush();
+        return $this->redirectToRoute('feed');
     }
 
     public function updateOne(Request $request): Response
@@ -88,9 +113,17 @@ class QuackController extends AbstractController
         if ($created_at) {
             $quack->setDate($created_at);
         }
-        $tags = $request->query->get('tags');
+
+        $tags = $this->formatHashtags($request->query->get('tags'));
         if ($tags) {
-            $quack->setTags($tags);
+            foreach ($quack->getHashtags() as $hashtag) {
+                $quack->removeHashtag($hashtag);
+            }
+            foreach ($tags as $tagText) {
+                $tag = new Tag();
+                $tag->setText($tagText);
+                $quack->addHashtag($tag);
+            }
         }
 
         $entityManager = $this->getDoctrine()->getManager();
@@ -99,19 +132,30 @@ class QuackController extends AbstractController
         return new Response('Updated quack with the id : ' . $id);
     }
 
-    public function deleteOne(Request $request): Response
+    public function remove(Request $request, int $id, UserInterface $user): Response
     {
-        $id = $request->query->get('id');
-        $quack = $this->getDoctrine()->getRepository(Quack::class)->find($id);
+        $entityManager = $this->getDoctrine()->getManager();
+        $quack = $entityManager->find(Quack::class, $id);
 
-        if (!quack) {
+        if (!$quack) {
             return new Response('404 quack not found');
         }
 
-        $entityManager = $this->getDoctrine()->getManager();
+        if ($user->getId() !== $quack->getAuthor()->getId() && !$user->isAdmin()) {
+            return new response('bah non en fait');
+        }
+
         $entityManager->remove($quack);
         $entityManager->flush();
+        return $this->redirectToRoute('feed');
+    }
 
-        return new Response('Deleted quack with the id : ' . $id);
+    public function formatHashtags(string $text)
+    {
+        $trimmedArray = explode(' ', trim(str_replace("/\s+/", ' ', $text)));
+        return array_filter(array_map(function ($element) {
+            if (strpos($element, '#') === 0) $element = substr($element, 1);
+            return $element;
+        }, $trimmedArray));
     }
 }

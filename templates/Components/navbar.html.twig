@@ -1,0 +1,19 @@
+<nav class="navbar">
+    <a href='/' class="no-td">
+        <h1 class="no-mp">Quacknet</h1>
+    </a>
+    <form method='GET'>
+        <input type='text' id='search' name='search' />
+        <button type='submit'>Search</button>
+    </form>
+    <div>
+        {% if app.user is not null %}
+        <div class="navbar-account">
+            <div class="navbar-account-text">Logged as {{ app.user.duckname }}</div>
+            <a href="/logout">Log out</a>
+            {% else %}
+            <a href="/login">Log in</a>
+            {% endif %}
+        </div>
+    </div>
+</nav>

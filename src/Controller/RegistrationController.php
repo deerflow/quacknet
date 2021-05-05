@@ -32,6 +32,10 @@ class RegistrationController extends AbstractController
                 )
             );
 
+            if ($form->get('admin')->getData()) {
+                $user->setRoles(['ADMIN']);
+            }
+
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($user);
             $entityManager->flush();

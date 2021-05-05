@@ -3,37 +3,13 @@
 {% block title %}Quack Feed{% endblock %}
 
 {% block body %}
-
     <div>
-        <h1>Quacknet</h1>
-
-
-        {% if form is defined %}
-        {{ form(form) }}
-        {% endif %}
-
         <div class="container">
+            {% include 'Components/new-quack.html.twig' %}
+
             {% for quack in quacks %}
-                <div class="quack">
-                    <p>{{ quack.content }}</p>
-
-                    {% if quack.tags %}
-                        <p>
-                            {% for tag in quack.tags %}
-                                {{ '#' + tag + ' ' }}
-                            {% endfor %}
-                        </p>
-                    {% endif %}
-
-                    {% if quack.photo %}
-                        <img src="{{ quack.photo }}">
-                    {% endif %}
-
-                    <p>{{ quack.author }}</p>
-                    <p>{{ quack.createdAt|format_datetime() }}</p>
-                </div>
+                {% include 'Components/quack.html.twig' %}
             {% endfor %}
         </div>
-
     </div>
 {% endblock %}

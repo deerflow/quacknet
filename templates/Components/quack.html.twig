@@ -1,0 +1,30 @@
+<div class="card">
+    <h3>{{ quack.author.duckname }}</h3>
+    <p>{{ quack.content|nl2br }}</p>
+
+    {% if app.user is not null and (quack.author.id is same as app.user.id or app.user.isAdmin()) %}
+        <form action='/quack/remove/{{quack.id}}' method='POST' class="delete-button">
+            <input type="hidden" name="_method" value="DELETE" />
+            <button type="submit" class="button-no-style">
+                <img class="icon-md" src="{{ asset('svg/delete.svg') }}" />
+            </button>
+        </form>
+    {% endif %}
+
+    {% if quack.hashtags is not empty %}
+        <p>
+            {% for tag in quack.hashtags %}
+                {{ '#' ~ tag.text ~ ' ' }}
+            {% endfor %}
+        </p>
+    {% endif %}
+
+    {% if quack.photo %}
+        <img src="{{ quack.photo }}" onerror="this.remove()">
+    {% endif %}
+
+    <p>{{ quack.createdAt|format_datetime() }}</p>
+    {% if quack.commentForm is defined or (quack.comments is defined and quack.comments is not empty) %}
+        {% include 'Components/comment-section.html.twig' %}
+    {% endif %}
+</div>

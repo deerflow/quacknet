@@ -1,8 +1,168 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
-body {
+* {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
     font-family: 'Inter', sans-serif;
+}
+
+label {
+    width: 10rem;
+}
+
+h1 {
+    margin-bottom: 1rem;
+}
+
+h2 {
+    margin-bottom: 0.75rem;
+}
+
+h3 {
+    margin-bottom: 0.5rem;
+}
+
+p {
+    margin: 0.25rem 0;
+}
+
+input, textarea {
+    padding: 0.1rem;
+    font-family: inherit;
+    outline: none;
+    border: 1px solid rgb(194, 194, 194);
+    border-radius: 2px;
+}
+
+input:focus, textarea:focus {
+    border-color: rgb(148, 148, 148);
+}
+
+/* UTILS */
+
+.no-td {
+    text-decoration: none;
+}
+
+.no-mp {
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 40rem;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.quack {
+    margin: 1rem auto;
+    border: 1px solid black;
+    position: relative;
+}
+
+img {
+    width: 15rem;
+    height: 15rem;
+}
+
+textarea {
+    resize: none;
+    width: 99%;
+    height: 7rem;
+}
+
+
+button {
+    background-color: rgb(41, 41, 41);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.comment-section {
+    margin-top: 1rem;
+}
+
+.comment {
+    margin: 0.25rem 0;
+    background-color: #f7f7f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem;
+    border-radius: 2px;
+}
+
+.delete-button {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+}
+
+/* COMMENT SECTION */
+
+.comments {
+    margin-top: 1rem;
+}
+
+/* NAVBAR */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 5rem;
+    color: white;
+    background-color: rgb(41, 41, 41);
+    align-items: center;
+}
+
+.navbar-account {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.navbar-account-text {
+    font-size: 0.75rem;
+    margin-bottom: 0.5rem;
+}
+
+a {
+    color: inherit;
+}
+
+.form-control {
+    margin-bottom: 0.5rem;
+}
+
+.form-label {
+    margin-bottom: 0.25rem;
+}
+
+/* COMPONENTS */
+
+.card {
+    border: 1px solid #e4e4e4;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);;
+    margin: 1.5rem 0;
+    border-radius: 4px;
+    position: relative;
+    padding: 1rem;
+}
+
+.icon-md {
+    width: 1.5rem;
+    height: 1.5rem;
+    color: red;
+}
+
+.button-no-style {
+    background: none;
 }

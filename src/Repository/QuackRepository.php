@@ -47,4 +47,19 @@ class QuackRepository extends ServiceEntityRepository
         ;
     }
     */
+    /**
+     * @param string $search
+     * @return array
+     */
+    public function findBySearchTerm(string $search): array
+    {
+        $entityManager = $this->getEntityManager();
+        $query = $entityManager
+            ->createQuery("SELECT q FROM App\Entity\Quack q
+            WHERE q.author IN (SELECT d FROM App\Entity\Duck d WHERE d.duckname LIKE :search)
+            OR q.id IN (SELECT IDENTITY(t.quack_id) FROM App\Entity\Tag t WHERE t.text LIKE :search)")
+            ->setParameter('search', '%' . $search . '%');
+
+        return $query->getResult();
+    }
 }

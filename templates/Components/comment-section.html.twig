@@ -1,0 +1,32 @@
+<div class="comment-section">
+    {% if quack.commentForm is defined %}
+        <div class="write-comment-form">
+            {{ form_start(quack.commentForm) }}
+                <div>{{ form_errors(quack.commentForm.text) }}</div>
+                <div>{{ form_widget(quack.commentForm.text) }}</div>
+                <div style="margin-top: 0.9rem">{{ form_widget(quack.commentForm.Post) }}</div>
+            {{ form_end(quack.commentForm) }}
+        </div>
+    {% endif %}
+
+    {% if quack.comments is defined and quack.comments is not empty %}
+        <div class="comments">
+            {% for comment in quack.comments %}
+                <div class="comment">
+                    <div>
+                        <h5> {{ comment.duck.duckname }} </h5>
+                        <p> {{ comment.text|nl2br }} </p>
+                    </div>
+                    {% if app.user is not null and (comment.duck.id is same as app.user.id or app.user.isAdmin()) %}
+                        <form action='/comment/remove/{{comment.id}}' method='POST'>
+                            <input type="hidden" name="_method" value="DELETE" />
+                            <button type="submit" class="button-no-style">
+                                <img class="icon-md" src="{{ asset('svg/delete.svg') }}" />
+                            </button>
+                        </form>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

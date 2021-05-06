@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
+use App\Services\MailService;
 
 class CommentController extends AbstractController
 {
@@ -27,8 +28,9 @@ class CommentController extends AbstractController
     /**
      * @Route("quack/{id}/comment/add", name="add_comment", methods={"POST"}, requirements={"id"="\d+"})
      */
-    public function add(Request $request, int $id, UserInterface $user): Response
+    public function add(Request $request, int $id, UserInterface $user, MailService $mailService): Response
     {
+        //$this->denyUnlessGranted('COMMENT_QUACK');
         $entityManager = $this->getDoctrine()->getManager();
         try {
             $data = $request->request->get('comment');
@@ -43,6 +45,8 @@ class CommentController extends AbstractController
 
             $entityManager->persist($comment);
             $entityManager->flush();
+
+            $mailService->sendMailOnComment($quack->getAuthor()->getEmail() , 'Mails/new-comment.html.twig', $data['text']);
 
             return $this->redirectToRoute('feed');
         } catch (Exception $e) {

@@ -32,10 +32,11 @@ class QuackController extends AbstractController
     public function getFeed(Request $request, QuackRepository $quackRepository): Response
     {
         $doctrine = $this->getDoctrine();
+
         $search = $request->query->get('search');
         $quacks = $quackRepository->findBySearchTerm($search);
 
-        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+        if (true /*$this->isGranted('CREATE_QUACK')*/) {
             $newQuackForm = $this->createForm(QuackType::class, new Quack(), [
                 'action' => $this->generateUrl('create'),
             ]);
@@ -62,6 +63,8 @@ class QuackController extends AbstractController
      */
     public function createOne(UserInterface $user, Request $request): Response
     {
+        //$this->denyAccessUnlessGranted('CREATE_QUACK');
+
         $quack = new Quack();
 
         $data = $request->request->get('quack');
@@ -105,6 +108,8 @@ class QuackController extends AbstractController
      */
     public function remove(Request $request, int $id, UserInterface $user): Response
     {
+        //$this->denyAccessUnlessGranted('REMOVE_QUACK');
+
         $entityManager = $this->getDoctrine()->getManager();
         $quack = $entityManager->find(Quack::class, $id);
 

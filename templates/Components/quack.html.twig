@@ -2,11 +2,11 @@
     <h3>{{ quack.author.duckname }}</h3>
     <p>{{ quack.content|nl2br }}</p>
 
-    {% if app.user is not null and (quack.author.id is same as app.user.id or app.user.isAdmin()) %}
-        <form action='/quack/remove/{{quack.id}}' method='POST' class="delete-button">
-            <input type="hidden" name="_method" value="DELETE" />
+    {% if is_granted('REMOVE_QUACK', quack) %}
+        <form action='/quack/remove/{{ quack.id }}' method='POST' class="delete-button">
+            <input type="hidden" name="_method" value="DELETE"/>
             <button type="submit" class="button-no-style">
-                <img class="icon-md" src="{{ asset('svg/delete.svg') }}" />
+                <img class="icon-md" src="{{ asset('svg/delete.svg') }}"/>
             </button>
         </form>
     {% endif %}

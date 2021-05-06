@@ -3,13 +3,9 @@
 {% block title %}Quack Feed{% endblock %}
 
 {% block body %}
-    <div>
-        <div class="container">
-            {% include 'Components/new-quack.html.twig' %}
+    {% include 'Components/new-quack.html.twig' %}
 
-            {% for quack in quacks %}
-                {% include 'Components/quack.html.twig' %}
-            {% endfor %}
-        </div>
-    </div>
+    {% for quack in quacks %}
+        {% include 'Components/quack.html.twig' %}
+    {% endfor %}
 {% endblock %}

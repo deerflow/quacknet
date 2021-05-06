@@ -19,6 +19,16 @@ class TagRepository extends ServiceEntityRepository
         parent::__construct($registry, Tag::class);
     }
 
+
+    public function getTagsByText(string $text)
+    {
+        return $this->createQueryBuilder('t')
+            ->select('IDENTITY(t.quack_id)')
+            ->where('t.text LIKE :searchTerm')
+            ->setParameter('searchTerm', 'PhpDev')
+            ->getQuery();
+    }
+
     // /**
     //  * @return Tag[] Returns an array of Tag objects
     //  */

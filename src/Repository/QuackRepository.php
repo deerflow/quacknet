@@ -2,7 +2,9 @@
 
 namespace App\Repository;
 
+use App\Entity\Duck;
 use App\Entity\Quack;
+use App\Entity\Tag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -48,18 +50,40 @@ class QuackRepository extends ServiceEntityRepository
     }
     */
     /**
-     * @param string $search
+     * @param ?string $search
      * @return array
      */
-    public function findBySearchTerm(string $search): array
+    public function findBySearchTerm(?string $search): array
     {
+        if (!$search) {
+            return $this->createQueryBuilder('q')
+                ->orderBy('q.created_at', 'DESC')
+                ->getQuery()
+                ->execute();
+
+        }
         $entityManager = $this->getEntityManager();
-        $query = $entityManager
+        /*$query = $entityManager
             ->createQuery("SELECT q FROM App\Entity\Quack q
             WHERE q.author IN (SELECT d FROM App\Entity\Duck d WHERE d.duckname LIKE :search)
             OR q.id IN (SELECT IDENTITY(t.quack_id) FROM App\Entity\Tag t WHERE t.text LIKE :search)")
-            ->setParameter('search', '%' . $search . '%');
+            ->setParameter('search', '%' . $search . '%');*/
 
-        return $query->getResult();
+
+        $duckQuery = $entityManager->getRepository(Duck::class)->getDucksByDuckname('PhpDev')->getDQL();
+        $tagQuery = $entityManager->getRepository(Tag::class)->getTagsByText('PhpDev')->getDQL();
+
+        $q = $this->createQueryBuilder('q')
+            ->select('DISTINCT q')
+            ->where('q.author IN :duckQuery')
+            ->orWhere('q.id IN :tagQuery')
+            ->getQuery()
+            ->setParameter('duckQuery', $duckQuery)
+            ->setParameter('tagQuery', $tagQuery)
+            ->execute();
+
+        dd($q);
+
+        return $q->execute();
     }
 }

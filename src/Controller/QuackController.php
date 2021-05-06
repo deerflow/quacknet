@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
-use App\Entity\Quack;
-use App\Entity\Duck;
-use App\Entity\Tag;
 use App\Entity\Comment;
-use App\Form\QuackType;
+use App\Entity\Quack;
+use App\Entity\Tag;
 use App\Form\CommentType;
+use App\Form\QuackType;
+use App\Repository\QuackRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,24 +25,20 @@ class QuackController extends AbstractController
             'controller_name' => 'QuackController',
         ]);
     }
+
     /**
      * @Route("/", name="feed")
      */
-    public function getFeed(Request $request): Response
+    public function getFeed(Request $request, QuackRepository $quackRepository): Response
     {
         $doctrine = $this->getDoctrine();
-        $securityContext = $this->container->get('security.authorization_checker');
         $search = $request->query->get('search');
 
         // TO DO : Au lieu de faire des array_reverse on pourrait ORDER BY created_at ? Vraie question ?
 
-        if (!$search) {
-            $quacks = array_reverse($doctrine->getRepository(Quack::class)->findAll());
-        } else {
-            $quacks = array_reverse($doctrine->getRepository(Quack::class)->findBySearchTerm($search));
-        }
+        $quacks = array_reverse($quackRepository->findBySearchTerm($search));
 
-        if ($securityContext->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
+        if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             $newQuackForm = $this->createForm(QuackType::class, new Quack(), [
                 'action' => '/create',
                 'method' => 'POST'

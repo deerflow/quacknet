@@ -25,6 +25,10 @@ class Test
      * @ORM\Column(type="string", length=255)
      */
     private $message;
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $age;
 
     public function getId(): ?int
     {
@@ -51,6 +55,18 @@ class Test
     public function setMessage(string $message): self
     {
         $this->message = $message;
+
+        return $this;
+    }
+
+    public function getAge(): ?int
+    {
+        return $this->age;
+    }
+
+    public function setAge(int $age): self
+    {
+        $this->age = $age;
 
         return $this;
     }

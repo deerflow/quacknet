@@ -25,12 +25,16 @@ class QuackController extends AbstractController
             'controller_name' => 'QuackController',
         ]);
     }
-
+    /**
+     * @Route("/", name="feed")
+     */
     public function getFeed(Request $request): Response
     {
         $doctrine = $this->getDoctrine();
         $securityContext = $this->container->get('security.authorization_checker');
         $search = $request->query->get('search');
+
+        // TO DO : Au lieu de faire des array_reverse on pourrait ORDER BY created_at ? Vraie question ?
 
         if (!$search) {
             $quacks = array_reverse($doctrine->getRepository(Quack::class)->findAll());

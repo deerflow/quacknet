@@ -19,8 +19,7 @@ class QuackType extends AbstractType
             ->add('photo', TextType::class, ['required' => false])
             ->add('Post', SubmitType::class, ['label' => 'Post'])
             ->setMethod('POST')
-            ->remove('tags')
-        ;
+            ->remove('tags');
     }
 
     public function configureOptions(OptionsResolver $resolver)

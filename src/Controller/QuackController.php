@@ -40,14 +40,12 @@ class QuackController extends AbstractController
 
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             $newQuackForm = $this->createForm(QuackType::class, new Quack(), [
-                'action' => '/create',
-                'method' => 'POST'
+                'action' => $this->generateUrl('create_quack')
             ]);
 
-            foreach ($quacks as $oneQuack) {
-                $oneQuack->commentForm = $this->createForm(CommentType::class, new Comment(), [
-                    'action' => '/quack/' . $oneQuack->getId() . '/comment/add',
-                    'method' => 'POST'
+            foreach ($quacks as $quack) {
+                $quack->commentForm = $this->createForm(CommentType::class, new Comment(), [
+                    'action' => $this->generateUrl('add_comment', ['id' => $quack->getId()]),
                 ])->createView();
             }
 
@@ -62,6 +60,12 @@ class QuackController extends AbstractController
         ]);
     }
 
+    /**
+     * @param UserInterface $user
+     * @param Request $request
+     * @return Response
+     * @Route("/quack/create", name="create_quack", methods={"POST"})
+     */
     public function createOne(UserInterface $user, Request $request): Response
     {
         $quack = new Quack();
@@ -132,7 +136,14 @@ class QuackController extends AbstractController
         return new Response('Updated quack with the id : ' . $id);
     }
 
-    public function remove(Request $request, int $id, UserInterface $user): Response
+    /**
+     * @param Request $request
+     * @param int $id
+     * @param UserInterface $user
+     * @return Response
+     * @Route("/quack/remove/{id}", name="remove_quack", methods={"DELETE"})
+     */
+    public function removeOne(Request $request, int $id, UserInterface $user): Response
     {
         $entityManager = $this->getDoctrine()->getManager();
         $quack = $entityManager->find(Quack::class, $id);

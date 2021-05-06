@@ -2,15 +2,15 @@
 
 namespace App\Controller;
 
+use App\Entity\Comment;
+use App\Entity\Duck;
+use App\Entity\Quack;
 use mysql_xdevapi\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\User\UserInterface;
-use App\Entity\Comment;
-use App\Entity\Quack;
-use App\Entity\Duck;
-use Symfony\Component\HttpFoundation\Request;
 
 class CommentController extends AbstractController
 {
@@ -25,7 +25,7 @@ class CommentController extends AbstractController
     }
 
     /**
-     * @Route("quack/{id}/comment/add", name="add_comment", requirements={"id"="\d+"})
+     * @Route("quack/{id}/comment/add", name="add_comment", methods={"POST"}, requirements={"id"="\d+"})
      */
     public function add(Request $request, int $id, UserInterface $user): Response
     {
@@ -51,7 +51,7 @@ class CommentController extends AbstractController
     }
 
     /**
-     * @Route("/comment/remove/{id}", name="add_comment", requirements={"id"="\d+"})
+     * @Route("/comment/remove/{id}", name="remove_comment", methods={"DELETE"}, requirements={"id"="\d+"})
      */
     public function remove(Request $request, int $id, UserInterface $user): Response
     {
@@ -61,11 +61,11 @@ class CommentController extends AbstractController
         if (!$comment) {
             return new Response('404 comment not found');
         }
-        
+
         if ($user->getId() !== $comment->getDuck()->getId() && !$user->isAdmin()) {
             return new response('bah non en fait');
         }
-        
+
         $entityManager->remove($comment);
         $entityManager->flush();
         return $this->redirectToRoute('feed');

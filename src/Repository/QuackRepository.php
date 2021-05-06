@@ -70,20 +70,39 @@ class QuackRepository extends ServiceEntityRepository
             ->setParameter('search', '%' . $search . '%');*/
 
 
-        $duckQuery = $entityManager->getRepository(Duck::class)->getDucksByDuckname('PhpDev')->getDQL();
-        $tagQuery = $entityManager->getRepository(Tag::class)->getTagsByText('PhpDev')->getDQL();
+        $duckQuery = $entityManager->getRepository(Duck::class)->getDucksByDuckname($search);
+        $tagQuery = $entityManager->getRepository(Tag::class)->getTagsByText($search);
 
         $q = $this->createQueryBuilder('q')
             ->select('DISTINCT q')
-            ->where('q.author IN :duckQuery')
-            ->orWhere('q.id IN :tagQuery')
-            ->getQuery()
+            ->where('q.author IN (:duckQuery)')
+            ->orWhere('q.id IN (:tagQuery)')
             ->setParameter('duckQuery', $duckQuery)
             ->setParameter('tagQuery', $tagQuery)
-            ->execute();
-
-        dd($q);
-
+            ->orderBy('q.created_at', 'DESC')
+            ->getQuery();
+        //TODO: Ajouter un order by à la fin de la query
         return $q->execute();
+    }
+
+    public function updateOne(int $id, ?string $content, ?string $photo, ?array $tags): ?bool
+    {
+        $quack = $this->find($id);
+        if (!quack) return null;
+        if ($photo) $quack->setPhoto($photo);
+        if ($content) $quack->setContent($content);
+        if ($tags) {
+            foreach ($quack->getHashtags() as $hashtag) {
+                $quack->removeHashtag($hashtag);
+            }
+            foreach ($tags as $tagText) {
+                $tag = new Tag();
+                $tag->setText($tagText);
+                $quack->addHashtag($tag);
+            }
+        }
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->flush();
+        return true;
     }
 }

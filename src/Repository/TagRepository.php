@@ -20,13 +20,14 @@ class TagRepository extends ServiceEntityRepository
     }
 
 
-    public function getTagsByText(string $text)
+    public function getTagsByText(string $search)
     {
         return $this->createQueryBuilder('t')
             ->select('IDENTITY(t.quack_id)')
-            ->where('t.text LIKE :searchTerm')
-            ->setParameter('searchTerm', 'PhpDev')
-            ->getQuery();
+            ->where("t.text LIKE :search")
+            ->setParameter('search', '%' . $search . '%')
+            ->getQuery()
+            ->execute();
     }
 
     // /**

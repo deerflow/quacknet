@@ -33,14 +33,11 @@ class QuackController extends AbstractController
     {
         $doctrine = $this->getDoctrine();
         $search = $request->query->get('search');
-
-        // TO DO : Au lieu de faire des array_reverse on pourrait ORDER BY created_at ? Vraie question ?
-
-        $quacks = array_reverse($quackRepository->findBySearchTerm($search));
+        $quacks = $quackRepository->findBySearchTerm($search);
 
         if ($this->isGranted('IS_AUTHENTICATED_REMEMBERED')) {
             $newQuackForm = $this->createForm(QuackType::class, new Quack(), [
-                'action' => $this->generateUrl('create_quack')
+                'action' => $this->generateUrl('create'),
             ]);
 
             foreach ($quacks as $quack) {
@@ -61,10 +58,7 @@ class QuackController extends AbstractController
     }
 
     /**
-     * @param UserInterface $user
-     * @param Request $request
-     * @return Response
-     * @Route("/quack/create", name="create_quack", methods={"POST"})
+     * @Route("/create", name="create")
      */
     public function createOne(UserInterface $user, Request $request): Response
     {
@@ -92,58 +86,24 @@ class QuackController extends AbstractController
         return $this->redirectToRoute('feed');
     }
 
-    public function updateOne(Request $request): Response
+    public function updateOne(Request $request, QuackRepository $quackRepository): Response
     {
         $id = $request->query->get('id');
-        $quack = $this->getDoctrine()->getRepository(Quack::class)->find($id);
-
-        if (!quack) {
-            return new Response('404 quack not found');
-        }
-
         $content = $request->query->get('content');
-        if ($content) {
-            $quack->setContent($content);
-        }
-        $author = $request->query->get('author');
-        if ($author) {
-            $quack->setAuthor($author);
-        }
         $photo = $request->query->get('photo');
-        if ($photo) {
-            $quack->setPhoto($photo);
-        }
-        $created_at = $request->query->get('created_at');
-        if ($created_at) {
-            $quack->setDate($created_at);
-        }
-
         $tags = $this->formatHashtags($request->query->get('tags'));
-        if ($tags) {
-            foreach ($quack->getHashtags() as $hashtag) {
-                $quack->removeHashtag($hashtag);
-            }
-            foreach ($tags as $tagText) {
-                $tag = new Tag();
-                $tag->setText($tagText);
-                $quack->addHashtag($tag);
-            }
-        }
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->flush();
+        $response = $quackRepository->updateOne($id, $content, $photo, $tags);
+
+        if (!$response) return new Response('404 quack not found');
 
         return new Response('Updated quack with the id : ' . $id);
     }
 
     /**
-     * @param Request $request
-     * @param int $id
-     * @param UserInterface $user
-     * @return Response
-     * @Route("/quack/remove/{id}", name="remove_quack", methods={"DELETE"})
+     * @Route("/quack/remove/{id}", name="remove", methods={"DELETE"})
      */
-    public function removeOne(Request $request, int $id, UserInterface $user): Response
+    public function remove(Request $request, int $id, UserInterface $user): Response
     {
         $entityManager = $this->getDoctrine()->getManager();
         $quack = $entityManager->find(Quack::class, $id);

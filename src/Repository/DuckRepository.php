@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Duck;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordUpgraderInterface;
@@ -37,15 +36,13 @@ class DuckRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->_em->flush();
     }
 
-    /**
-     * @param string $search
-     * @return Query
-     */
-    public function getDucksByDuckname(string $search): Query
+    public function getDucksByDuckname(string $search)
     {
         return $this->createQueryBuilder('d')
-            ->where('d.duckname LIKE PhpDev')
-            ->getQuery();
+            ->where("d.duckname LIKE :search")
+            ->setParameter('search', '%' . $search . '%')
+            ->getQuery()
+            ->execute();  
     }
 
     // /**

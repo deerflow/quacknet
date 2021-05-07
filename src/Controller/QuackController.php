@@ -28,7 +28,7 @@ class QuackController extends AbstractController
         $search = $request->query->get('search');
         $quacks = $quackRepository->findBySearchTerm($search);
 
-        if (true /*$this->isGranted('CREATE_QUACK')*/) {
+        if ($this->isGranted('CREATE_QUACK')) {
             $newQuackForm = $this->createForm(QuackType::class, new Quack(), [
                 'action' => $this->generateUrl('create'),
             ]);
@@ -100,13 +100,10 @@ class QuackController extends AbstractController
     }
 
     /**
-     * @Route("/quack/remove/{id}", name="remove", methods={"GET"})
-     * @IsGranted("DELETE_QUACK")
+     * @Route("/quack/remove/{id}", name="remove", methods={"DELETE"})
      */
-    public function remove(Request $request, int $id): Response
+    public function remove(int $id): Response
     {
-        $user = $this->getUser();
-
         $entityManager = $this->getDoctrine()->getManager();
         $quack = $entityManager->find(Quack::class, $id);
 
@@ -114,9 +111,7 @@ class QuackController extends AbstractController
             return new Response('404 quack not found');
         }
 
-        if ($user->getId() !== $quack->getAuthor()->getId() && !$user->isAdmin()) {
-            return new response('bah non en fait');
-        }
+        $this->denyAccessUnlessGranted('DELETE_QUACK', $quack);
 
         $entityManager->remove($quack);
         $entityManager->flush();

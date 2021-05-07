@@ -8,29 +8,21 @@ use App\Entity\Tag;
 use App\Form\CommentType;
 use App\Form\QuackType;
 use App\Repository\QuackRepository;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\User\UserInterface;
 
 class QuackController extends AbstractController
 {
     /**
-     * @Route("/quack", name="quack")
-     */
-    public function index(): Response
-    {
-        return $this->render('quack/index.html.twig', [
-            'controller_name' => 'QuackController',
-        ]);
-    }
-
-    /**
      * @Route("/", name="feed")
      */
-    public function getFeed(Request $request, QuackRepository $quackRepository): Response
+    public function feed(Request $request, QuackRepository $quackRepository): Response
     {
+        $this->getUser();
+
         $doctrine = $this->getDoctrine();
 
         $search = $request->query->get('search');
@@ -59,11 +51,12 @@ class QuackController extends AbstractController
     }
 
     /**
-     * @Route("/create", name="create")
+     * @Route("quack/create", name="create", methods={"POST"})
+     * @IsGranted("CREATE_QUACK")
      */
-    public function createOne(UserInterface $user, Request $request): Response
+    public function create(Request $request): Response
     {
-        //$this->denyAccessUnlessGranted('CREATE_QUACK');
+        $user = $this->getUser();
 
         $quack = new Quack();
 
@@ -89,9 +82,12 @@ class QuackController extends AbstractController
         return $this->redirectToRoute('feed');
     }
 
-    public function updateOne(Request $request, QuackRepository $quackRepository): Response
+    /**
+     * @Route("quack/edit/{id}", name="edit", methods={"GET", "PUT"})
+     * @IsGranted("EDIT_QUACK")
+     */
+    public function edit(Request $request, QuackRepository $quackRepository, int $id): Response
     {
-        $id = $request->query->get('id');
         $content = $request->query->get('content');
         $photo = $request->query->get('photo');
         $tags = $this->formatHashtags($request->query->get('tags'));
@@ -100,15 +96,16 @@ class QuackController extends AbstractController
 
         if (!$response) return new Response('404 quack not found');
 
-        return new Response('Updated quack with the id : ' . $id);
+        return $this->redirectToRoute('feed');
     }
 
     /**
-     * @Route("/quack/remove/{id}", name="remove", methods={"DELETE"})
+     * @Route("/quack/remove/{id}", name="remove", methods={"GET"})
+     * @IsGranted("DELETE_QUACK")
      */
-    public function remove(Request $request, int $id, UserInterface $user): Response
+    public function remove(Request $request, int $id): Response
     {
-        //$this->denyAccessUnlessGranted('REMOVE_QUACK');
+        $user = $this->getUser();
 
         $entityManager = $this->getDoctrine()->getManager();
         $quack = $entityManager->find(Quack::class, $id);

@@ -29,6 +29,10 @@ class Test
      * @ORM\Column(type="integer")
      */
     private $age;
+    /**
+     * @ORM\Column(type="string", length=60)
+     */
+    private $rajioj;
 
     public function getId(): ?int
     {
@@ -67,6 +71,18 @@ class Test
     public function setAge(int $age): self
     {
         $this->age = $age;
+
+        return $this;
+    }
+
+    public function getRajioj(): ?string
+    {
+        return $this->rajioj;
+    }
+
+    public function setRajioj(string $rajioj): self
+    {
+        $this->rajioj = $rajioj;
 
         return $this;
     }

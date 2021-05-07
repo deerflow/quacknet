@@ -2,6 +2,9 @@ security:
     encoders:
         App\Entity\Duck:
             algorithm: auto
+    access_decision_manager:
+        strategy: unanimous
+        allow_if_all_abstain: false
 
     # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:

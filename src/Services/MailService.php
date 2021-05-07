@@ -42,7 +42,7 @@ class MailService
         // On envoie le mail
         $email = (new Email())
             // expediteur
-            ->from('noreply@teub-de-negre.com')
+            ->from('noreply@mail-quack.com')
             // destinataire
             ->to($to)
             ->subject("Quelqu'un a ecrit un superbe commentaire sur l'un de vos quacks")
